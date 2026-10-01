@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#E9ECF1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="русский">
+<title>русский — speaking practice</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=PT+Serif:ital,wght@0,400;0,700;1,400&family=Golos+Text:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#E9ECF1;
+  --card:#F8F9FB;
+  --ink:#151C26;
+  --ink-2:#5C6573;
+  --ink-3:#8B94A2;
+  --rule:#CBD2DC;
+  --rule-soft:#DDE2E9;
+  --accent:#27436F;
+  --accent-soft:#DDE4F0;
+  --good:#2F6E4F;
+  --bad:#A63D26;
+  --nom:#2F6E4F; --acc:#A63D26; --gen:#6C4592; --dat:#A96E10; --ins:#1A6A7A; --pre:#7A5134;
+  --r:10px;
+  --safe-b:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#10151C; --card:#19202A; --ink:#E7EBF1; --ink-2:#98A2B1; --ink-3:#6C7686;
+    --rule:#2C3644; --rule-soft:#232C38; --accent:#8FB4E8; --accent-soft:#1E2B3E;
+    --good:#6FBF92; --bad:#E08268;
+    --nom:#6FBF92; --acc:#E08268; --gen:#B695E0; --dat:#E0B25C; --ins:#6FC2D4; --pre:#C69A78;
+  }
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  background:var(--paper);color:var(--ink);
+  font-family:"Golos Text","Segoe UI",Roboto,system-ui,sans-serif;
+  font-size:16px;line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  overscroll-behavior-y:none;
+}
+.ru{font-family:"PT Serif",Georgia,"Times New Roman",serif}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+input{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+
+/* ---------- shell ---------- */
+.shell{max-width:520px;margin:0 auto;padding:0 18px;min-height:100vh;display:flex;flex-direction:column}
+.topbar{display:flex;align-items:baseline;justify-content:space-between;padding:18px 0 14px;border-bottom:1px solid var(--rule)}
+.mark{font-family:"PT Serif",Georgia,serif;font-size:25px;font-weight:700;letter-spacing:-.01em}
+.streak{font-size:13px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.streak b{color:var(--ink);font-weight:600}
+main{flex:1;padding:22px 0 104px}
+.view{display:none}
+.view.on{display:block}
+
+/* ---------- today ---------- */
+.due{
+  background:var(--card);border:1px solid var(--rule-soft);border-radius:var(--r);
+  padding:26px 22px 22px;text-align:center;
+}
+.due-n{font-family:"PT Serif",Georgia,serif;font-size:66px;line-height:.9;font-weight:700;letter-spacing:-.03em}
+.due-l{color:var(--ink-2);font-size:14px;margin:10px 0 20px}
+.btn{
+  display:block;width:100%;padding:14px;border-radius:8px;
+  background:var(--accent);color:var(--paper);font-weight:600;font-size:16px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn{color:#0C1119}}
+.btn:active{transform:translateY(1px)}
+.btn.ghost{background:none;border:1px solid var(--rule);color:var(--ink);font-weight:500}
+.btn.sm{width:auto;padding:9px 16px;font-size:14px;display:inline-block}
+
+.meters{margin-top:26px}
+.meters h2{font-size:13px;font-weight:600;color:var(--ink-2);margin:0 0 12px}
+.meter{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--rule-soft)}
+.meter:last-child{border-bottom:0}
+.meter-n{flex:1;font-size:15px}
+.meter-bar{width:96px;height:5px;background:var(--rule-soft);border-radius:3px;overflow:hidden}
+.meter-bar i{display:block;height:100%;background:var(--accent);border-radius:3px}
+.meter-p{width:38px;text-align:right;font-size:13px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+
+.heat{display:grid;grid-template-columns:repeat(14,1fr);gap:4px;margin-top:8px}
+.heat i{aspect-ratio:1;border-radius:2px;background:var(--rule-soft)}
+.heat i[data-l="1"]{background:color-mix(in srgb,var(--accent) 30%,transparent)}
+.heat i[data-l="2"]{background:color-mix(in srgb,var(--accent) 60%,transparent)}
+.heat i[data-l="3"]{background:var(--accent)}
+
+/* ---------- drill ---------- */
+.drill-top{display:flex;align-items:center;justify-content:space-between;color:var(--ink-2);font-size:13px;margin-bottom:22px}
+.drill-top .prog{font-variant-numeric:tabular-nums}
+.kind{font-size:12px;font-weight:600;letter-spacing:.02em;padding:3px 9px;border-radius:20px;border:1px solid var(--rule)}
+.prompt{font-size:26px;line-height:1.3;font-weight:500;letter-spacing:-.01em;margin:0 0 6px}
+.prompt-sub{color:var(--ink-2);font-size:14px;margin-bottom:26px}
+.blankline{font-family:"PT Serif",Georgia,serif;font-size:24px;line-height:1.45}
+.blank{border-bottom:2px solid var(--accent);padding:0 26px;display:inline-block}
+.answer{
+  font-family:"PT Serif",Georgia,serif;font-size:29px;line-height:1.35;font-weight:700;
+  margin:18px 0 6px;letter-spacing:-.01em;
+}
+.answer.miss{color:var(--bad)}
+.note{color:var(--ink-2);font-size:14px;line-height:1.55;margin:10px 0 0}
+.note b{color:var(--ink);font-weight:600}
+.hr{height:1px;background:var(--rule);margin:26px 0}
+.row{display:flex;gap:10px}
+.row>*{flex:1}
+.grades{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:20px}
+.grade{padding:12px 4px;border:1px solid var(--rule);border-radius:8px;text-align:center;font-size:14px;font-weight:500}
+.grade small{display:block;font-size:11px;color:var(--ink-3);margin-top:2px;font-variant-numeric:tabular-nums}
+.grade[data-g="0"]{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 35%,var(--rule))}
+.grade[data-g="3"]{color:var(--good);border-color:color-mix(in srgb,var(--good) 35%,var(--rule))}
+.answerbox{
+  width:100%;padding:13px 14px;border:1px solid var(--rule);border-radius:8px;
+  background:var(--card);font-family:"PT Serif",Georgia,serif;font-size:20px;
+}
+.answerbox::placeholder{color:var(--ink-3);font-family:"Golos Text",sans-serif;font-size:15px}
+.mic{display:flex;align-items:center;justify-content:center;gap:8px}
+.mic.live{border-color:var(--bad);color:var(--bad)}
+.heard{font-family:"PT Serif",Georgia,serif;font-size:17px;color:var(--ink-2);margin-top:12px;min-height:24px}
+.heard b{color:var(--good);font-weight:700}
+.heard s{color:var(--bad);text-decoration:none;opacity:.75}
+.speak{display:inline-flex;align-items:center;gap:7px;font-size:14px;color:var(--accent);font-weight:500;padding:6px 0}
+.caseflag{display:inline-block;font-size:12px;font-weight:600;padding:2px 8px;border-radius:20px;margin-right:6px}
+.caseflag[data-c="nom"]{color:var(--nom);background:color-mix(in srgb,var(--nom) 14%,transparent)}
+.caseflag[data-c="acc"]{color:var(--acc);background:color-mix(in srgb,var(--acc) 14%,transparent)}
+.caseflag[data-c="gen"]{color:var(--gen);background:color-mix(in srgb,var(--gen) 14%,transparent)}
+.caseflag[data-c="dat"]{color:var(--dat);background:color-mix(in srgb,var(--dat) 14%,transparent)}
+.caseflag[data-c="ins"]{color:var(--ins);background:color-mix(in srgb,var(--ins) 14%,transparent)}
+.caseflag[data-c="pre"]{color:var(--pre);background:color-mix(in srgb,var(--pre) 14%,transparent)}
+
+/* ---------- browse ---------- */
+.tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:14px;margin-bottom:4px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.chip{padding:7px 13px;border:1px solid var(--rule);border-radius:20px;font-size:13.5px;white-space:nowrap;color:var(--ink-2)}
+.chip.on{background:var(--accent);border-color:var(--accent);color:var(--paper)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .chip.on{color:#0C1119}}
+.item{padding:13px 0;border-bottom:1px solid var(--rule-soft);display:flex;gap:12px;align-items:flex-start}
+.item-b{flex:1;min-width:0}
+.item-ru{font-family:"PT Serif",Georgia,serif;font-size:19px;line-height:1.35}
+.item-en{color:var(--ink-2);font-size:14px;margin-top:2px}
+.item-s{font-size:11px;color:var(--ink-3);margin-top:4px;font-variant-numeric:tabular-nums}
+.icon{width:36px;height:36px;border-radius:50%;border:1px solid var(--rule);display:flex;align-items:center;justify-content:center;flex:none;font-size:15px}
+
+/* ---------- you ---------- */
+.stat{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--rule-soft);font-size:15px}
+.stat b{font-weight:600;font-variant-numeric:tabular-nums}
+h2.sec{font-size:13px;font-weight:600;color:var(--ink-2);margin:30px 0 10px}
+.empty{text-align:center;padding:48px 20px;color:var(--ink-2)}
+.empty p{margin:0 0 18px;font-size:15px}
+.tiny{font-size:12.5px;color:var(--ink-3);line-height:1.6;margin-top:14px}
+
+/* ---------- nav ---------- */
+nav{
+  position:fixed;left:0;right:0;bottom:0;background:var(--paper);
+  border-top:1px solid var(--rule);display:flex;
+  padding-bottom:var(--safe-b);z-index:5;
+}
+nav .in{max-width:520px;margin:0 auto;display:flex;width:100%}
+nav button{flex:1;padding:11px 0 13px;font-size:11.5px;color:var(--ink-3);display:flex;flex-direction:column;align-items:center;gap:4px}
+nav button span{font-size:18px;line-height:1}
+nav button.on{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="shell">
+  <header class="topbar">
+    <div class="mark ru">ру́сский</div>
+    <div class="streak" id="streak"></div>
+  </header>
+
+  <main>
+    <section class="view on" id="v-today"></section>
+    <section class="view" id="v-drill"></section>
+    <section class="view" id="v-browse"></section>
+    <section class="view" id="v-you"></section>
+  </main>
+</div>
+
+<nav><div class="in">
+  <button data-v="today" class="on"><span>◈</span>Today</button>
+  <button data-v="drill"><span>◍</span>Drill</button>
+  <button data-v="browse"><span>☰</span>Phrases</button>
+  <button data-v="you"><span>◔</span>Progress</button>
+</div></nav>
+
+<script>
+/* ============================================================
+   CONTENT
+   Russian is written with combining stress marks (U+0301) so you
+   always practise the right stress. Stripped before speech + matching.
+   ============================================================ */
+const PHRASES = [
+{c:"Core",en:"I'm running a bit late",ru:"Я немно́го опа́здываю"},
+{c:"Core",en:"Can you say that again?",ru:"Мо́жешь повтори́ть?"},
+{c:"Core",en:"I didn't catch that",ru:"Я не расслы́шал"},
+{c:"Core",en:"Let's meet at seven",ru:"Дава́й встре́тимся в семь"},
+{c:"Core",en:"It depends on the situation",ru:"Зави́сит от ситуа́ции"},
+{c:"Core",en:"I have no idea",ru:"Поня́тия не име́ю"},
+{c:"Core",en:"I'll think about it",ru:"Я поду́маю"},
+{c:"Core",en:"That makes sense",ru:"Э́то име́ет смысл"},
+{c:"Core",en:"I'm not sure yet",ru:"Я ещё не уве́рен"},
+{c:"Core",en:"Never mind / it's nothing",ru:"Ничего́ стра́шного"},
+{c:"Core",en:"Let me check",ru:"Сейча́с прове́рю"},
+{c:"Core",en:"I'll get back to you later",ru:"Я отве́чу тебе́ поздне́е"},
+{c:"Core",en:"As far as I know",ru:"Наско́лько я зна́ю"},
+{c:"Core",en:"To be honest",ru:"Че́стно говоря́"},
+{c:"Core",en:"In my opinion",ru:"По-мо́ему"},
+{c:"Core",en:"On the one hand… on the other hand",ru:"С одно́й стороны́… с друго́й стороны́"},
+{c:"Core",en:"That's exactly what I meant",ru:"Э́то и́менно то, что я име́л в виду́"},
+{c:"Core",en:"I don't agree",ru:"Я не согла́сен"},
+{c:"Core",en:"I partly agree",ru:"Я части́чно согла́сен"},
+{c:"Core",en:"It's up to you",ru:"Тебе́ реша́ть"},
+{c:"Core",en:"Whatever you like",ru:"Как хо́чешь"},
+{c:"Core",en:"I'd rather stay home",ru:"Я бы лу́чше оста́лся до́ма"},
+{c:"Core",en:"I was just about to call you",ru:"Я как раз собира́лся тебе́ позвони́ть"},
+{c:"Core",en:"It worked out",ru:"Всё получи́лось"},
+{c:"Core",en:"It didn't work out",ru:"Не получи́лось"},
+{c:"Core",en:"I got used to it",ru:"Я привы́к"},
+{c:"Core",en:"I'm used to working late",ru:"Я привы́к рабо́тать допоздна́"},
+{c:"Core",en:"I can't be bothered",ru:"Мне лень"},
+{c:"Core",en:"I'm worn out",ru:"Я вы́мотался"},
+{c:"Core",en:"I overslept",ru:"Я проспа́л"},
+{c:"Core",en:"I forgot to warn you",ru:"Я забы́л тебя́ предупреди́ть"},
+{c:"Core",en:"Sorry to bother you",ru:"Извини́, что беспоко́ю"},
+{c:"Core",en:"Could you help me out?",ru:"Ты не мог бы мне помо́чь?"},
+{c:"Core",en:"Do you mind if I…?",ru:"Ты не про́тив, е́сли я…?"},
+{c:"Core",en:"Go ahead, don't be shy",ru:"Не стесня́йся"},
+{c:"Core",en:"Take your time",ru:"Не торопи́сь"},
+{c:"Core",en:"Hang on a second",ru:"Подожди́ секу́нду"},
+{c:"Core",en:"I'm on my way",ru:"Я уже́ е́ду"},
+{c:"Core",en:"I'll be there in ten minutes",ru:"Бу́ду че́рез де́сять мину́т"},
+{c:"Core",en:"Where are you right now?",ru:"Ты сейча́с где?"},
+{c:"Core",en:"Let's stay in touch",ru:"Дава́й на свя́зи"},
+{c:"Core",en:"Let me know",ru:"Дай знать"},
+{c:"Core",en:"That's a shame",ru:"Жаль"},
+{c:"Core",en:"Congratulations",ru:"Поздравля́ю"},
+{c:"Core",en:"Good luck",ru:"Уда́чи"},
+{c:"Core",en:"Same to you",ru:"И тебе́ то́же"},
+
+{c:"Work",en:"The server is down",ru:"Се́рвер не рабо́тает"},
+{c:"Work",en:"I'll deploy it tonight",ru:"Я вы́ложу э́то сего́дня ве́чером"},
+{c:"Work",en:"There's a bug in the code",ru:"В ко́де оши́бка"},
+{c:"Work",en:"I need to fix it first",ru:"Снача́ла ну́жно э́то испра́вить"},
+{c:"Work",en:"It works on my machine",ru:"У меня́ всё рабо́тает"},
+{c:"Work",en:"Let's discuss it at the meeting",ru:"Обсу́дим э́то на встре́че"},
+{c:"Work",en:"Can you send me the file?",ru:"Мо́жешь присла́ть мне файл?"},
+{c:"Work",en:"I already sent it",ru:"Я уже́ отпра́вил"},
+{c:"Work",en:"The deadline is Friday",ru:"Срок — пя́тница"},
+{c:"Work",en:"We won't make it in time",ru:"Мы не успе́ем"},
+{c:"Work",en:"We need more time",ru:"Нам ну́жно бо́льше вре́мени"},
+{c:"Work",en:"Who is responsible for this?",ru:"Кто за э́то отвеча́ет?"},
+{c:"Work",en:"I'm working on it",ru:"Я над э́тим рабо́таю"},
+{c:"Work",en:"It's almost ready",ru:"Почти́ гото́во"},
+{c:"Work",en:"Let's postpone it",ru:"Дава́й отло́жим"},
+{c:"Work",en:"I'll take care of it",ru:"Я э́тим займу́сь"},
+{c:"Work",en:"What exactly is the problem?",ru:"В чём и́менно пробле́ма?"},
+{c:"Work",en:"It stopped working yesterday",ru:"Вчера́ переста́ло рабо́тать"},
+{c:"Work",en:"Try restarting it",ru:"Попро́буй перезапусти́ть"},
+{c:"Work",en:"I need access to the server",ru:"Мне ну́жен до́ступ к се́рверу"},
+{c:"Work",en:"Let's check the logs",ru:"Дава́й посмо́трим ло́ги"},
+{c:"Work",en:"I'll write it down",ru:"Я запишу́"},
+
+{c:"Feelings",en:"I'm worried about it",ru:"Я об э́том беспоко́юсь"},
+{c:"Feelings",en:"I'm glad you came",ru:"Я рад, что ты пришёл"},
+{c:"Feelings",en:"I miss you",ru:"Я скуча́ю по тебе́"},
+{c:"Feelings",en:"I'm bored",ru:"Мне ску́чно"},
+{c:"Feelings",en:"I'm in a hurry",ru:"Я спешу́"},
+{c:"Feelings",en:"I don't feel well",ru:"Мне пло́хо"},
+{c:"Feelings",en:"I have a headache",ru:"У меня́ боли́т голова́"},
+{c:"Feelings",en:"I'm cold",ru:"Мне хо́лодно"},
+{c:"Feelings",en:"I'm hungry",ru:"Я хочу́ есть"},
+{c:"Feelings",en:"I'm nervous",ru:"Я волну́юсь"},
+{c:"Feelings",en:"I'm surprised",ru:"Я удивлён"},
+{c:"Feelings",en:"That irritates me",ru:"Меня́ э́то раздража́ет"},
+{c:"Feelings",en:"I feel sorry for him",ru:"Мне его́ жаль"},
+{c:"Feelings",en:"I can't stand it",ru:"Я э́того не выношу́"},
+
+{c:"Linking",en:"the day before yesterday",ru:"позавчера́"},
+{c:"Linking",en:"the day after tomorrow",ru:"послеза́втра"},
+{c:"Linking",en:"in a week",ru:"че́рез неде́лю"},
+{c:"Linking",en:"a week ago",ru:"неде́лю наза́д"},
+{c:"Linking",en:"from time to time",ru:"вре́мя от вре́мени"},
+{c:"Linking",en:"as soon as possible",ru:"как мо́жно скоре́е"},
+{c:"Linking",en:"at the same time",ru:"одновреме́нно"},
+{c:"Linking",en:"in the end",ru:"в конце́ концо́в"},
+{c:"Linking",en:"for now",ru:"пока́ что"},
+{c:"Linking",en:"by the way",ru:"кста́ти"},
+{c:"Linking",en:"all of a sudden",ru:"вдруг"},
+{c:"Linking",en:"more and more often",ru:"всё ча́ще"},
+{c:"Linking",en:"at least",ru:"по кра́йней ме́ре"},
+{c:"Linking",en:"in any case",ru:"в любо́м слу́чае"},
+{c:"Linking",en:"it's about time",ru:"давно́ пора́"},
+{c:"Linking",en:"that is to say",ru:"то есть"},
+{c:"Linking",en:"besides that",ru:"кро́ме того́"},
+{c:"Linking",en:"nevertheless",ru:"тем не ме́нее"},
+{c:"Linking",en:"just in case",ru:"на вся́кий слу́чай"},
+{c:"Linking",en:"as a result",ru:"в результа́те"}
+];
+
+const CASES = [
+{s:"Я иду́ к ___",w:"врач",a:"врачу́",k:"dat",why:"<b>к</b> always takes the dative — direction toward a person."},
+{s:"Он рабо́тает над ___",w:"прое́кт",a:"прое́ктом",k:"ins",why:"<b>над</b> takes the instrumental."},
+{s:"У меня́ нет ___",w:"вре́мя",a:"вре́мени",k:"gen",why:"<b>нет</b> takes the genitive. <b>время</b> is a neuter -мя noun: время → времени."},
+{s:"Мы говори́ли о ___",w:"рабо́та",a:"рабо́те",k:"pre",why:"<b>о</b> takes the prepositional."},
+{s:"Я жду ___",w:"сестра́",a:"сестру́",k:"acc",why:"Direct object of <b>ждать</b> → accusative."},
+{s:"Он по́льзуется ___",w:"компью́тер",a:"компью́тером",k:"ins",why:"<b>пользоваться</b> always takes the instrumental — no preposition."},
+{s:"Я бою́сь ___",w:"соба́ка",a:"соба́ки",k:"gen",why:"<b>бояться</b> takes the genitive."},
+{s:"Она́ помога́ет ___",w:"брат",a:"бра́ту",k:"dat",why:"<b>помогать</b> takes the dative — you help <i>to</i> someone."},
+{s:"Мы пое́хали в ___",w:"го́род",a:"го́род",k:"acc",why:"Motion <i>into</i> → <b>в</b> + accusative."},
+{s:"Мы живём в ___",w:"го́род",a:"го́роде",k:"pre",why:"Location, no motion → <b>в</b> + prepositional. Same preposition, different case."},
+{s:"Э́то кни́га ___",w:"мой друг",a:"моего́ дру́га",k:"gen",why:"Possession → genitive. Animate masculine, so the adjective ends -его."},
+{s:"Он занима́ется ___",w:"спорт",a:"спо́ртом",k:"ins",why:"<b>заниматься</b> takes the instrumental."},
+{s:"Я дово́лен ___",w:"результа́т",a:"результа́том",k:"ins",why:"<b>доволен</b> (satisfied with) takes the instrumental."},
+{s:"Без ___ я не спра́влюсь",w:"твоя́ по́мощь",a:"твое́й по́мощи",k:"gen",why:"<b>без</b> takes the genitive. помощь is feminine -ь: помощь → помощи."},
+{s:"Позвони́ ___",w:"я",a:"мне",k:"dat",why:"<b>звонить</b> takes the dative — you call <i>to</i> someone."},
+{s:"Я ви́жу ___",w:"он",a:"его́",k:"acc",why:"Direct object → accusative. он → его."},
+{s:"Пе́ред ___ я нерво́зничал",w:"встре́ча",a:"встре́чей",k:"ins",why:"<b>перед</b> takes the instrumental. Soft stem → -ей not -ой."},
+{s:"По́сле ___ я пошёл домо́й",w:"рабо́та",a:"рабо́ты",k:"gen",why:"<b>после</b> takes the genitive."},
+{s:"Благодаря́ ___ всё получи́лось",w:"ты",a:"тебе́",k:"dat",why:"<b>благодаря</b> takes the dative — one of the few prepositions that does."},
+{s:"Из-за ___ мы опозда́ли",w:"дождь",a:"дождя́",k:"gen",why:"<b>из-за</b> takes the genitive. Stress moves to the ending: дождь → дождя́."},
+{s:"Он похо́ж на ___",w:"оте́ц",a:"отца́",k:"acc",why:"<b>похож на</b> + accusative. отец loses the fleeting -е-: отец → отца."},
+{s:"Я интересу́юсь ___",w:"исто́рия",a:"исто́рией",k:"ins",why:"<b>интересоваться</b> takes the instrumental."},
+{s:"Мне не хвата́ет ___",w:"де́ньги",a:"де́нег",k:"gen",why:"<b>не хватает</b> takes the genitive. Genitive plural of деньги is де́нег."},
+{s:"Она́ ста́ла ___",w:"врач",a:"врачо́м",k:"ins",why:"<b>стать</b> (to become) takes the instrumental."},
+{s:"Мы встре́тились с ___",w:"они́",a:"ни́ми",k:"ins",why:"<b>с</b> + instrumental. After a preposition, они → ни́ми with н-."},
+{s:"Скажи́ ___ пра́вду",w:"сестра́",a:"сестре́",k:"dat",why:"<b>сказать</b> — you tell <i>to</i> someone → dative."},
+{s:"Я учу́сь в ___",w:"университе́т",a:"университе́те",k:"pre",why:"Location → <b>в</b> + prepositional."},
+{s:"Э́то зави́сит от ___",w:"ты",a:"тебя́",k:"gen",why:"<b>от</b> takes the genitive."},
+{s:"Он вошёл в ___",w:"ко́мната",a:"ко́мнату",k:"acc",why:"Motion into → accusative. Feminine -а → -у."},
+{s:"Я занима́юсь э́тим ___",w:"ка́ждый день",a:"ка́ждый день",k:"acc",why:"Duration and repetition with no preposition → accusative."},
+{s:"Мы говори́ли об ___",w:"э́то",a:"э́том",k:"pre",why:"<b>об</b> + prepositional. это → этом."},
+{s:"Он пришёл с ___",w:"друзья́",a:"друзья́ми",k:"ins",why:"<b>с</b> (together with) + instrumental. Plural -ями."}
+];
+
+const ASPECT = [
+{i:"де́лать",p:"сде́лать",en:"to do / make",why:"Imperfective = the process or a habit. Perfective = finished, with a result."},
+{i:"чита́ть",p:"прочита́ть",en:"to read",why:"Я чита́л кни́гу — I was reading it. Я прочита́л кни́гу — I finished it."},
+{i:"писа́ть",p:"написа́ть",en:"to write",why:"Use the perfective when the text exists at the end."},
+{i:"говори́ть",p:"сказа́ть",en:"to speak / to say",why:"Irregular pair. говорить = speak, talk. сказать = say one thing, once."},
+{i:"брать",p:"взять",en:"to take",query:1,why:"Fully irregular pair — worth memorising as two separate verbs."},
+{i:"дава́ть",p:"дать",en:"to give",why:"Imperative: дава́й (let's) vs дай (give me)."},
+{i:"покупа́ть",p:"купи́ть",en:"to buy",why:"Я покупа́ю хлеб ка́ждый день vs Я купи́л хлеб."},
+{i:"начина́ть",p:"нача́ть",en:"to begin",why:"After начать you use an imperfective infinitive: начал рабо́тать."},
+{i:"понима́ть",p:"поня́ть",en:"to understand / to realise",why:"понимать = ongoing understanding. понять = the moment it clicks."},
+{i:"объясня́ть",p:"объясни́ть",en:"to explain",why:"Объясни́ мне — explain it to me, once, properly."},
+{i:"реша́ть",p:"реши́ть",en:"to decide / to solve",why:"решать задачу = working on it; решить задачу = solved it."},
+{i:"спра́шивать",p:"спроси́ть",en:"to ask (a question)",why:"Don't confuse with проси́ть = to ask for something."},
+{i:"отвеча́ть",p:"отве́тить",en:"to answer",why:"Takes the dative for the person: отве́тить ему́."},
+{i:"помога́ть",p:"помо́чь",en:"to help",why:"Both take the dative: помо́чь дру́гу."},
+{i:"встреча́ть",p:"встре́тить",en:"to meet",why:"Reflexive встреча́ться / встре́титься = to meet each other, + с + instrumental."},
+{i:"забыва́ть",p:"забы́ть",en:"to forget",why:"Я забы́л — I forgot (and it's done)."},
+{i:"вспомина́ть",p:"вспо́мнить",en:"to recall",why:"вспо́мнить = it came back to you. по́мнить = to hold in memory (no pair)."},
+{i:"возвраща́ться",p:"верну́ться",en:"to return",why:"Verb of motion; верну́сь = I'll be back."},
+{i:"остава́ться",p:"оста́ться",en:"to stay / remain",why:"Я оста́нусь до́ма — I'll stay home."},
+{i:"пока́зывать",p:"показа́ть",en:"to show",why:"Покажи́ мне — show me."},
+{i:"теря́ть",p:"потеря́ть",en:"to lose",why:"Most пo- perfectives just add the result."},
+{i:"проверя́ть",p:"прове́рить",en:"to check",why:"Сейча́с прове́рю — I'll check right now."}
+];
+
+const MOTION = [
+{ru:"идти́",en:"to go on foot, one direction, now",why:"Unidirectional. Я иду́ в магази́н — I'm on my way there."},
+{ru:"ходи́ть",en:"to go on foot, repeatedly or round trip",why:"Multidirectional. Я хожу́ в спортза́л — I go to the gym (regularly)."},
+{ru:"е́хать",en:"to go by vehicle, one direction, now",why:"Я е́ду домо́й — I'm driving home right now."},
+{ru:"е́здить",en:"to go by vehicle, repeatedly",why:"Я е́зжу на рабо́ту на маши́не — I drive to work."},
+{ru:"пойти́",en:"to set off on foot",why:"по- = start of a single trip. Я пошёл — I'm off."},
+{ru:"прийти́",en:"to arrive on foot",why:"при- = arrival. Он пришёл — he's here."},
+{ru:"уйти́",en:"to leave, go away",why:"у- = away from. Он ушёл — he's gone."},
+{ru:"зайти́",en:"to drop by",why:"за- = brief stop. Зайди́ ко мне — drop by my place."},
+{ru:"вы́йти",en:"to step out / exit",why:"вы- = out of. Он вы́шел — he stepped out."},
+{ru:"войти́",en:"to enter",why:"в- = into. Войди́те — come in."},
+{ru:"перейти́",en:"to cross over",why:"пере- = across. Перейти́ доро́гу — cross the road."},
+{ru:"дое́хать",en:"to reach, get all the way there",why:"до- = as far as. Как дое́хать до це́нтра?"},
+{ru:"уе́хать",en:"to leave by vehicle",why:"Он уе́хал в Москву́ — he's gone to Moscow."},
+{ru:"прие́хать",en:"to arrive by vehicle",why:"Я прие́хал вчера́ — I arrived yesterday."}
+];
+
+/* ============================================================
+   STORAGE  — window.storage when hosted inside Claude,
+   localStorage when you serve this file yourself.
+   ============================================================ */
+const KEY = "ru-trainer-v1";
+const store = {
+  async get(){
+    try{ if(window.storage){ const r = await window.storage.get(KEY); if(r&&r.value) return JSON.parse(r.value); } }catch(e){}
+    try{ const v = localStorage.getItem(KEY); if(v) return JSON.parse(v); }catch(e){}
+    return null;
+  },
+  async set(obj){
+    const s = JSON.stringify(obj);
+    try{ if(window.storage){ await window.storage.set(KEY, s); return; } }catch(e){}
+    try{ localStorage.setItem(KEY, s); }catch(e){}
+  }
+};
+
+/* ============================================================
+   DECK — every card asks you to PRODUCE Russian.
+   ============================================================ */
+const deck = [];
+PHRASES.forEach((p,i)=>deck.push({id:"p"+i,type:"phrase",cat:p.c,prompt:p.en,answer:p.ru}));
+CASES.forEach((c,i)=>deck.push({id:"c"+i,type:"case",cat:"Cases",prompt:c.s,word:c.w,answer:c.a,kase:c.k,why:c.why}));
+ASPECT.forEach((a,i)=>{
+  deck.push({id:"ai"+i,type:"aspect",cat:"Aspect",prompt:a.en+" — the ongoing / habitual one",answer:a.i,why:a.why,pair:a.i+" / "+a.p});
+  deck.push({id:"ap"+i,type:"aspect",cat:"Aspect",prompt:a.en+" — the completed one",answer:a.p,why:a.why,pair:a.i+" / "+a.p});
+});
+MOTION.forEach((m,i)=>deck.push({id:"m"+i,type:"motion",cat:"Motion",prompt:m.en,answer:m.ru,why:m.why}));
+const byId = Object.fromEntries(deck.map(c=>[c.id,c]));
+const CATS = ["All","Core","Work","Feelings","Linking","Cases","Aspect","Motion"];
+
+/* ============================================================
+   STATE + SPACED REPETITION (SM-2, trimmed)
+   ============================================================ */
+let S = {srs:{}, days:{}, streak:0, last:null, done:0, cat:"All"};
+const today = ()=> new Date().toISOString().slice(0,10);
+const dayNum = d => Math.floor(new Date(d+"T00:00:00Z").getTime()/864e5);
+
+function schedule(id, g){            // g: 0 again, 1 hard, 2 good, 3 easy
+  const c = S.srs[id] || {ease:2.5, int:0, reps:0, lapses:0};
+  if(g === 0){ c.reps = 0; c.int = 0; c.lapses++; c.ease = Math.max(1.3, c.ease - .2); }
+  else{
+    c.ease = Math.max(1.3, Math.min(2.8, c.ease + (g===1 ? -.15 : g===3 ? .1 : 0)));
+    c.reps++;
+    c.int = c.reps === 1 ? (g===1?1:g===3?3:1)
+          : c.reps === 2 ? (g===1?3:g===3?8:5)
+          : Math.round(c.int * c.ease * (g===1?.7:g===3?1.25:1));
+    c.int = Math.min(c.int, 240);
+  }
+  c.due = dayNum(today()) + (g===0 ? 0 : c.int);
+  c.seen = today();
+  S.srs[id] = c;
+}
+const dueNow = () => {
+  const n = dayNum(today());
+  return deck.filter(c => { const s = S.srs[c.id]; return !s || s.due <= n; });
+};
+const strength = c => { const s = S.srs[c.id]; return !s ? 0 : Math.min(1, s.int/21); };
+function mastery(cat){
+  const set = deck.filter(c => c.cat === cat);
+  if(!set.length) return 0;
+  return set.reduce((a,c)=>a+strength(c),0) / set.length;
+}
+function touchDay(){
+  const t = today();
+  S.days[t] = (S.days[t]||0) + 1;
+  if(S.last !== t){
+    const y = new Date(Date.now()-864e5).toISOString().slice(0,10);
+    S.streak = S.last === y ? S.streak + 1 : 1;
+    S.last = t;
+  }
+}
+
+/* ============================================================
+   TEXT + SPEECH
+   ============================================================ */
+const bare = s => (s||"").normalize("NFD").replace(/\u0301/g,"").normalize("NFC");
+const norm = s => bare(s).toLowerCase().replace(/ё/g,"е").replace(/[^а-я\s]/g,"").replace(/\s+/g," ").trim();
+
+let voice = null;
+function pickVoice(){
+  const vs = speechSynthesis.getVoices();
+  voice = vs.find(v=>v.lang==="ru-RU") || vs.find(v=>v.lang&&v.lang.startsWith("ru")) || null;
+}
+if(window.speechSynthesis){ pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
+function say(text, rate){
+  if(!window.speechSynthesis) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(bare(text));
+  u.lang = "ru-RU"; u.rate = rate || .9;
+  if(voice) u.voice = voice;
+  speechSynthesis.speak(u);
+}
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+/* word-by-word diff of what the mic heard vs the target */
+function scoreSpeech(target, heard){
+  const t = norm(target).split(" "), h = norm(heard).split(" ");
+  const pool = h.slice();
+  const marks = t.map(w=>{
+    const i = pool.indexOf(w);
+    if(i > -1){ pool.splice(i,1); return {w, ok:true}; }
+    return {w, ok:false};
+  });
+  return {marks, pct: Math.round(marks.filter(m=>m.ok).length / t.length * 100)};
+}
+
+/* ============================================================
+   RENDER HELPERS
+   ============================================================ */
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[m]));
+const CASENAME = {nom:"nominative",acc:"accusative",gen:"genitive",dat:"dative",ins:"instrumental",pre:"prepositional"};
+
+function go(v){
+  document.querySelectorAll(".view").forEach(e=>e.classList.toggle("on", e.id === "v-"+v));
+  document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on", b.dataset.v === v));
+  window.scrollTo(0,0);
+  if(v==="today") drawToday();
+  if(v==="browse") drawBrowse();
+  if(v==="you") drawYou();
+  if(v==="drill") startSession();
+}
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>go(b.dataset.v));
+
+function drawStreak(){
+  $("#streak").innerHTML = S.streak > 0
+    ? `<b>${S.streak}</b> day${S.streak>1?"s":""} in a row`
+    : `start a streak today`;
+}
+
+/* ---------- TODAY ---------- */
+function drawToday(){
+  drawStreak();
+  const n = dueNow().length;
+  const heat = [];
+  for(let i=13;i>=0;i--){
+    const d = new Date(Date.now()-i*864e5).toISOString().slice(0,10);
+    const c = S.days[d]||0;
+    heat.push(`<i data-l="${c===0?0:c<8?1:c<20?2:3}"></i>`);
+  }
+  const rows = ["Core","Work","Feelings","Linking","Cases","Aspect","Motion"].map(c=>{
+    const p = Math.round(mastery(c)*100);
+    return `<div class="meter"><div class="meter-n">${c}</div>
+      <div class="meter-bar"><i style="width:${p}%"></i></div>
+      <div class="meter-p">${p}%</div></div>`;
+  }).join("");
+
+  $("#v-today").innerHTML = `
+    <div class="due">
+      <div class="due-n">${n}</div>
+      <div class="due-l">${n ? "cards ready to practise" : "nothing due — come back tomorrow"}</div>
+      <button class="btn" onclick="go('drill')">${n ? "Start speaking" : "Practise anyway"}</button>
+    </div>
+    <div class="meters">
+      <h2>Last two weeks</h2>
+      <div class="heat">${heat.join("")}</div>
+      <h2 style="margin-top:28px">How solid each area is</h2>
+      ${rows}
+    </div>`;
+}
+
+/* ---------- DRILL ---------- */
+let Q = [], qi = 0, shown = false, rec = null, heardText = "";
+
+function startSession(){
+  let pool = dueNow();
+  if(!pool.length) pool = deck.slice();
+  Q = pool.sort(()=>Math.random()-.5).slice(0,20);
+  qi = 0;
+  drawCard();
+}
+
+function drawCard(){
+  if(rec){ try{rec.stop()}catch(e){} rec = null; }
+  shown = false; heardText = "";
+  if(qi >= Q.length){
+    $("#v-drill").innerHTML = `<div class="empty">
+      <div class="due-n" style="font-size:44px">✓</div>
+      <p style="margin-top:14px">${Q.length} cards done. ${dueNow().length} still waiting.</p>
+      <button class="btn sm ghost" onclick="startSession()">Another round</button>
+      <button class="btn sm" style="margin-top:10px" onclick="go('today')">Back to today</button>
+    </div>`;
+    return;
+  }
+  const c = Q[qi];
+  let head = "";
+  if(c.type === "case"){
+    head = `<div class="blankline ru">${esc(c.prompt).replace("___",'<span class="blank"></span>')}</div>
+            <div class="prompt-sub" style="margin-top:12px">Put <span class="ru" style="font-size:17px">${esc(c.word)}</span> into the right form</div>`;
+  }else{
+    head = `<div class="prompt">${esc(c.prompt)}</div><div class="prompt-sub">Say it in Russian</div>`;
+  }
+  const label = {phrase:"phrase",case:"case",aspect:"aspect",motion:"motion"}[c.type];
+
+  $("#v-drill").innerHTML = `
+    <div class="drill-top">
+      <span class="prog">${qi+1} / ${Q.length}</span>
+      <span class="kind">${label}</span>
+    </div>
+    ${head}
+    <div id="input-zone">
+      ${c.type === "case"
+        ? `<input class="answerbox" id="typed" placeholder="type the form" autocomplete="off" autocapitalize="off" spellcheck="false">`
+        : `<button class="btn ghost mic" id="micbtn">🎤 Say it out loud</button>`}
+      <div class="heard" id="heard"></div>
+      <button class="btn" style="margin-top:12px" id="reveal">Show the answer</button>
+    </div>
+    <div id="reveal-zone"></div>`;
+
+  const mb = $("#micbtn");
+  if(mb) mb.onclick = listen;
+  $("#reveal").onclick = reveal;
+  const t = $("#typed");
+  if(t) t.addEventListener("keydown", e=>{ if(e.key === "Enter") reveal(); });
+}
+
+function listen(){
+  const btn = $("#micbtn");
+  if(!SR){ $("#heard").textContent = "This browser has no speech input — tap Show the answer and say it aloud yourself."; return; }
+  if(rec){ try{rec.stop()}catch(e){} rec = null; btn.classList.remove("live"); btn.textContent = "🎤 Say it out loud"; return; }
+  rec = new SR();
+  rec.lang = "ru-RU"; rec.interimResults = false; rec.maxAlternatives = 3;
+  btn.classList.add("live"); btn.textContent = "● Listening — tap to stop";
+  rec.onresult = e => {
+    heardText = Array.from(e.results[0]).map(r=>r.transcript).join(" ");
+    const best = e.results[0][0].transcript;
+    $("#heard").textContent = "heard: " + best;
+  };
+  rec.onerror = () => { $("#heard").textContent = "Couldn't hear that. Check mic permission."; };
+  rec.onend = () => { rec = null; btn.classList.remove("live"); btn.textContent = "🎤 Say it again"; };
+  try{ rec.start(); }catch(e){ $("#heard").textContent = "Mic unavailable."; }
+}
+
+function reveal(){
+  if(shown) return;
+  shown = true;
+  const c = Q[qi];
+  const typed = $("#typed") ? $("#typed").value : "";
+  let verdict = "", miss = false;
+
+  if(typed){
+    const ok = norm(typed) === norm(c.answer);
+    miss = !ok;
+    verdict = ok
+      ? `<div class="note" style="color:var(--good)">Correct.</div>`
+      : `<div class="note" style="color:var(--bad)">You wrote <span class="ru">${esc(typed)}</span></div>`;
+  }else if(heardText){
+    const {marks, pct} = scoreSpeech(c.answer, heardText);
+    miss = pct < 60;
+    verdict = `<div class="heard">${pct}% matched — ${marks.map(m=>m.ok?`<b>${esc(m.w)}</b>`:`<s>${esc(m.w)}</s>`).join(" ")}</div>`;
+  }
+
+  let extra = "";
+  if(c.type === "case")   extra = `<div class="note"><span class="caseflag" data-c="${c.kase}">${CASENAME[c.kase]}</span>${c.why}</div>`;
+  if(c.type === "aspect") extra = `<div class="note"><b>${esc(c.pair)}</b><br>${c.why}</div>`;
+  if(c.type === "motion") extra = `<div class="note">${c.why}</div>`;
+
+  $("#input-zone").innerHTML = "";
+  $("#reveal-zone").innerHTML = `
+    <div class="answer ru ${miss?"miss":""}">${esc(c.answer)}</div>
+    <button class="speak" id="hear">🔊 Hear it</button>
+    <button class="speak" id="hear-slow" style="margin-left:14px">🐢 Slowly</button>
+    ${verdict}${extra}
+    <div class="hr"></div>
+    <div class="prompt-sub" style="margin-bottom:0">How did that feel coming out?</div>
+    <div class="grades">
+      <button class="grade" data-g="0">Again<small>today</small></button>
+      <button class="grade" data-g="1">Hard<small>${nextIn(c,1)}</small></button>
+      <button class="grade" data-g="2">Good<small>${nextIn(c,2)}</small></button>
+      <button class="grade" data-g="3">Easy<small>${nextIn(c,3)}</small></button>
+    </div>`;
+
+  $("#hear").onclick = ()=>say(c.answer);
+  $("#hear-slow").onclick = ()=>say(c.answer,.6);
+  say(c.answer);
+  document.querySelectorAll(".grade").forEach(b=>b.onclick = ()=>grade(+b.dataset.g));
+}
+
+function nextIn(c,g){
+  const s = S.srs[c.id] || {ease:2.5,int:0,reps:0};
+  const reps = s.reps + 1;
+  let int = reps === 1 ? (g===1?1:g===3?3:1)
+          : reps === 2 ? (g===1?3:g===3?8:5)
+          : Math.round(s.int * s.ease * (g===1?.7:g===3?1.25:1));
+  int = Math.min(int,240);
+  return int < 30 ? int+"d" : Math.round(int/30)+"mo";
+}
+
+async function grade(g){
+  schedule(Q[qi].id, g);
+  S.done++;
+  touchDay();
+  await store.set(S);
+  if(g === 0) Q.push(Q[qi]);
+  qi++;
+  drawCard();
+}
+
+/* ---------- BROWSE ---------- */
+function drawBrowse(){
+  const chips = CATS.map(c=>`<button class="chip ${S.cat===c?"on":""}" data-c="${c}">${c}</button>`).join("");
+  const list = deck.filter(c=>S.cat==="All"||c.cat===S.cat).map(c=>{
+    const s = S.srs[c.id];
+    const st = !s ? "not seen yet" : s.int === 0 ? "learning" : `next in ${s.int}d`;
+    const sub = c.type === "case" ? esc(c.prompt).replace("___","<b>"+esc(c.answer)+"</b>") : esc(c.prompt);
+    return `<div class="item">
+      <div class="item-b">
+        <div class="item-ru">${esc(c.answer)}</div>
+        <div class="item-en">${sub}</div>
+        <div class="item-s">${st}</div>
+      </div>
+      <button class="icon" data-say="${esc(c.answer)}">🔊</button>
+    </div>`;
+  }).join("");
+  $("#v-browse").innerHTML = `<div class="tabs">${chips}</div>${list}`;
+  document.querySelectorAll("#v-browse .chip").forEach(b=>b.onclick=()=>{S.cat=b.dataset.c;drawBrowse()});
+  document.querySelectorAll("#v-browse .icon").forEach(b=>b.onclick=()=>say(b.dataset.say));
+}
+
+/* ---------- PROGRESS ---------- */
+function drawYou(){
+  const seen = Object.keys(S.srs).length;
+  const solid = deck.filter(c=>strength(c) > .6).length;
+  const total = Object.values(S.days).reduce((a,b)=>a+b,0);
+  $("#v-you").innerHTML = `
+    <div class="stat"><span>Current streak</span><b>${S.streak} day${S.streak===1?"":"s"}</b></div>
+    <div class="stat"><span>Cards answered, all time</span><b>${total}</b></div>
+    <div class="stat"><span>Cards started</span><b>${seen} of ${deck.length}</b></div>
+    <div class="stat"><span>Solid (3+ weeks retention)</span><b>${solid}</b></div>
+    <div class="stat"><span>Waiting for you today</span><b>${dueNow().length}</b></div>
+    <h2 class="sec">Your data</h2>
+    <div class="row">
+      <button class="btn ghost sm" id="exp">Export progress</button>
+      <button class="btn ghost sm" id="imp">Import progress</button>
+    </div>
+    <p class="tiny">Everything stays on this device. Export writes a JSON file you can carry to your phone or keep as a backup.</p>
+    <h2 class="sec">Reset</h2>
+    <button class="btn ghost sm" id="wipe">Erase all progress</button>`;
+  $("#exp").onclick = ()=>{
+    const b = new Blob([JSON.stringify(S)],{type:"application/json"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(b); a.download = "russian-progress.json"; a.click();
+  };
+  $("#imp").onclick = ()=>{
+    const i = document.createElement("input"); i.type = "file"; i.accept = ".json";
+    i.onchange = () => {
+      const r = new FileReader();
+      r.onload = async () => { try{ S = JSON.parse(r.result); await store.set(S); drawYou(); drawStreak(); }catch(e){ alert("That file isn't valid progress data."); } };
+      r.readAsText(i.files[0]);
+    };
+    i.click();
+  };
+  $("#wipe").onclick = async ()=>{
+    if(!confirm("Erase every card's progress? This can't be undone.")) return;
+    S = {srs:{},days:{},streak:0,last:null,done:0,cat:"All"};
+    await store.set(S); drawYou(); drawStreak();
+  };
+}
+
+/* ---------- boot ---------- */
+(async function(){
+  const saved = await store.get();
+  if(saved) S = Object.assign(S, saved);
+  drawStreak();
+  drawToday();
+})();
+
+</script>
+</body>
+</html>
